@@ -71,6 +71,11 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+backend/config/serviceAccountKey.json
+android/app/src/main/java/io_prabhav-efbd2-3856928fbab5.json
+*.json
+
 ==================================================================================
 
 
