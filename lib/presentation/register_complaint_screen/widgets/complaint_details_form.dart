@@ -85,16 +85,18 @@ class _ComplaintDetailsFormState extends State<ComplaintDetailsForm> {
           TextFormField(
             controller: widget.titleController,
             decoration: InputDecoration(
-              hintText: 'Enter a brief title for your complaint',
+              hintText: 'Enter a title for your complaint',
               prefixIcon: Icon(
                 Icons.title,
                 color: colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
-            maxLength: 100,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter a complaint title';
+              }
+              if (value.trim().length < 3) {
+                return 'Title must be at least 3 characters';
               }
               return null;
             },
@@ -114,23 +116,20 @@ class _ComplaintDetailsFormState extends State<ComplaintDetailsForm> {
             controller: widget.descriptionController,
             decoration: InputDecoration(
               hintText: 'Describe your complaint in detail...',
-              prefixIcon: Padding(
-                padding: const EdgeInsets.only(bottom: 60),
-                child: Icon(
+                prefixIcon: Icon(
                   Icons.description,
                   color: colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
-              ),
               alignLabelWithHint: true,
             ),
-            maxLines: 5,
-            maxLength: 500,
+            minLines: 3,
+            maxLines: null,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please provide a detailed description';
+                return 'Please provide a description';
               }
-              if (value.trim().length < 20) {
-                return 'Description must be at least 20 characters';
+              if (value.trim().length < 10) {
+                return 'Description must be at least 10 characters';
               }
               return null;
             },
@@ -232,18 +231,9 @@ class _ComplaintDetailsFormState extends State<ComplaintDetailsForm> {
             decoration: BoxDecoration(
               color: colorScheme.surface,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: colorScheme.outline.withValues(alpha: 0.3),
-              ),
             ),
             child: Row(
               children: [
-                CustomIconWidget(
-                  iconName: 'visibility_off',
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
-                  size: 24,
-                ),
-                SizedBox(width: 3.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
+import '../../../services/theme_service.dart';
+import '../../../services/language_service.dart';
 
 class SettingsSectionWidget extends StatefulWidget {
   final Map<String, dynamic> settingsData;
@@ -151,7 +153,8 @@ class _SettingsSectionWidgetState extends State<SettingsSectionWidget> {
   Widget _buildLanguageToggle(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isHindi = widget.settingsData["language"] == "Hindi";
+    final languageService = LanguageService();
+    final isHindi = languageService.isHindi;
 
     return Container(
       padding: EdgeInsets.symmetric(vertical: 2.h),
@@ -183,7 +186,7 @@ class _SettingsSectionWidgetState extends State<SettingsSectionWidget> {
                 ),
                 SizedBox(height: 0.5.h),
                 Text(
-                  "Choose your preferred language",
+                  isHindi ? "हिंदी" : "English",
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
@@ -205,7 +208,12 @@ class _SettingsSectionWidgetState extends State<SettingsSectionWidget> {
               SizedBox(width: 2.w),
               Switch(
                 value: isHindi,
-                onChanged: (value) {
+                onChanged: (value) async {
+                  if (value) {
+                    await languageService.setToHindi();
+                  } else {
+                    await languageService.setToEnglish();
+                  }
                   widget.onSettingChanged(
                       "language", value ? "Hindi" : "English");
                 },
@@ -230,7 +238,8 @@ class _SettingsSectionWidgetState extends State<SettingsSectionWidget> {
   Widget _buildThemeSelector(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final currentTheme = widget.settingsData["theme"] as String? ?? "System";
+    final themeService = ThemeService();
+    final isDarkMode = themeService.isDarkMode;
 
     return GestureDetector(
       onTap: () => _showThemeDialog(context),
@@ -246,7 +255,7 @@ class _SettingsSectionWidgetState extends State<SettingsSectionWidget> {
                 borderRadius: BorderRadius.circular(8),
               ),
               child: CustomIconWidget(
-                iconName: 'palette',
+                iconName: isDarkMode ? 'dark_mode' : 'light_mode',
                 color: colorScheme.primary,
                 size: 5.w,
               ),
@@ -264,7 +273,7 @@ class _SettingsSectionWidgetState extends State<SettingsSectionWidget> {
                   ),
                   SizedBox(height: 0.5.h),
                   Text(
-                    "Current: $currentTheme",
+                    isDarkMode ? "Dark Mode" : "Light Mode",
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: colorScheme.onSurface.withValues(alpha: 0.6),
                     ),
@@ -272,10 +281,12 @@ class _SettingsSectionWidgetState extends State<SettingsSectionWidget> {
                 ],
               ),
             ),
-            CustomIconWidget(
-              iconName: 'chevron_right',
-              color: colorScheme.onSurface.withValues(alpha: 0.4),
-              size: 5.w,
+            Switch(
+              value: isDarkMode,
+              onChanged: (value) async {
+                await themeService.toggleTheme(isDark: value);
+                widget.onSettingChanged("theme", value ? "Dark" : "Light");
+              },
             ),
           ],
         ),

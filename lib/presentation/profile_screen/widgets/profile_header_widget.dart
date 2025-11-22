@@ -50,15 +50,25 @@ class ProfileHeaderWidget extends StatelessWidget {
                         ),
                       ),
                       child: ClipOval(
-                        child: CustomImageWidget(
-                          imageUrl: userData["avatar"] as String? ?? "",
-                          width: 20.w,
-                          height: 20.w,
-                          fit: BoxFit.cover,
-                          semanticLabel:
-                              userData["avatarSemanticLabel"] as String? ??
-                                  "User profile photo",
-                        ),
+                        child: (userData["avatar"] as String?) != null &&
+                                (userData["avatar"] as String).isNotEmpty
+                            ? CustomImageWidget(
+                                imageUrl: userData["avatar"] as String,
+                                width: 20.w,
+                                height: 20.w,
+                                fit: BoxFit.cover,
+                                semanticLabel: userData["avatarSemanticLabel"] as String? ??
+                                    "User profile photo",
+                              )
+                            : Container(
+                                color: Colors.transparent,
+                                alignment: Alignment.center,
+                                child: Icon(
+                                  Icons.person,
+                                  size: 12.w,
+                                  color: colorScheme.onPrimary.withValues(alpha: 0.9),
+                                ),
+                              ),
                       ),
                     ),
                     Positioned(

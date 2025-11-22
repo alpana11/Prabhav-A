@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "60862020828",
+    "project_id": "prabhav-efbd2",
+    "storage_bucket": "prabhav-efbd2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:60862020828:android:4857c24e2c697c8c32c819",
+        "android_client_info": {
+          "package_name": "com.example.prabhav_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpQNHsRXLwmtusNDcXb9BFg3dPqXLq5vA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

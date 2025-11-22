@@ -89,55 +89,20 @@ class _TrackComplaintsScreenState extends State<TrackComplaintsScreen>
 
                 SizedBox(height: 2.h),
 
-                // Complaint Timeline Cards
-                _buildComplaintCard(
-                  theme,
-                  complaintNumber: 'CMP-2024-001',
-                  category: 'Road Issue',
-                  title: 'Pothole on Main Street',
-                  submittedDate: '2024-01-15',
-                  status: 'In Progress',
-                  stage: 2, // In Progress
-                  authority: 'Public Works Department',
-                ),
-
-                SizedBox(height: 2.h),
-
-                _buildComplaintCard(
-                  theme,
-                  complaintNumber: 'CMP-2024-002',
-                  category: 'Water Supply',
-                  title: 'Low Water Pressure in Sector 15',
-                  submittedDate: '2024-01-10',
-                  status: 'Under Review',
-                  stage: 1, // Under Review
-                  authority: 'Water Department',
-                ),
-
-                SizedBox(height: 4.h),
-
-                // Resolved Complaints Section
-                Text(
-                  'Resolved Complaints',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+                // Complaint lists are populated from backend in production.
+                // Removed hard-coded example complaints to avoid dummy data.
+                Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    child: Text(
+                      'No complaints to display. Complaints will appear here after you submit or when loaded from the backend.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
                   ),
                 ),
-
-                SizedBox(height: 2.h),
-
-                _buildComplaintCard(
-                  theme,
-                  complaintNumber: 'CMP-2023-156',
-                  category: 'Street Light',
-                  title: 'Streetlight fixed near Sector 15',
-                  submittedDate: '2023-12-20',
-                  status: 'Resolved',
-                  stage: 4, // Resolved
-                  authority: 'Electricity Department',
-                ),
-
-                SizedBox(height: 2.h),
               ],
             ),
           ),
@@ -214,6 +179,7 @@ class _TrackComplaintsScreenState extends State<TrackComplaintsScreen>
     );
   }
 
+  // ignore: unused_element
   Widget _buildComplaintCard(
     ThemeData theme, {
     required String complaintNumber,

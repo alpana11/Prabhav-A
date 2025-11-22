@@ -1,5 +1,5 @@
 name: prabhav_app
-description: "A new Flutter project."
+description: "PRABHAV - Transparent Governance Platform for citizen complaints."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
@@ -63,6 +63,14 @@ dependencies:
   google_maps_flutter: ^2.6.1
   geolocator: ^13.0.1
   cached_network_image: ^3.4.1
+  firebase_core: ^2.10.0
+  firebase_auth: ^4.6.4
+  
+  # HTTP client and secure storage
+  http: ^1.5.0
+  flutter_secure_storage: ^9.0.0
+  flutter_native_splash: ^2.3.0
+  shared_preferences: ^2.2.0
 
 dev_dependencies:
   flutter_test:
@@ -74,6 +82,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -115,3 +124,27 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+# Flutter Native Splash Screen Configuration
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/logo/prabhav_logo.png
+  branding: assets/logo/prabhav_logo.png
+  color_dark: "#1A1A1A"
+  image_dark: assets/logo/prabhav_logo_dark.png
+  android_12:
+    image: assets/logo/prabhav_logo.png
+    image_dark: assets/logo/prabhav_logo_dark.png
+    icon_background_color: "#FFFFFF"
+  web: false
+
+# Flutter launcher icons configuration - run `flutter pub run flutter_launcher_icons:main`
+flutter_icons:
+  android: true
+  ios: true
+  image_path: assets/logo/prabhav_logo.png
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: assets/logo/prabhav_logo.png
+
+
+

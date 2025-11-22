@@ -113,78 +113,19 @@ class _PublicIssuesScreenState extends State<PublicIssuesScreen>
 
                       SizedBox(height: 4.h),
 
-                      // Public Issues List
-                      _buildIssueCard(
-                        theme,
-                        category: 'Streetlight',
-                        title: 'Streetlight fixed near Sector 15',
-                        area: 'Sector 15, Chandigarh',
-                        status: 'Resolved',
-                        date: '2024-01-20',
-                        upvotes: 45,
+                      // Public issues list should be loaded from backend API
+                      Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 8.h),
+                          child: Text(
+                            'No public issues to display. This list will be populated from the backend in the demo.',
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                            ),
+                          ),
+                        ),
                       ),
-
-                      SizedBox(height: 2.h),
-
-                      _buildIssueCard(
-                        theme,
-                        category: 'Road',
-                        title: 'Pothole repair completed on Main Street',
-                        area: 'Sector 14, Chandigarh',
-                        status: 'Resolved',
-                        date: '2024-01-18',
-                        upvotes: 78,
-                      ),
-
-                      SizedBox(height: 2.h),
-
-                      _buildIssueCard(
-                        theme,
-                        category: 'Water Supply',
-                        title: 'Water pressure issue in Sector 12',
-                        area: 'Sector 12, Chandigarh',
-                        status: 'In Progress',
-                        date: '2024-01-22',
-                        upvotes: 32,
-                      ),
-
-                      SizedBox(height: 2.h),
-
-                      _buildIssueCard(
-                        theme,
-                        category: 'Waste Management',
-                        title: 'Regular garbage collection reinstated',
-                        area: 'Sector 11, Chandigarh',
-                        status: 'Resolved',
-                        date: '2024-01-19',
-                        upvotes: 56,
-                      ),
-
-                      SizedBox(height: 2.h),
-
-                      _buildIssueCard(
-                        theme,
-                        category: 'Electricity',
-                        title: 'Power outage resolved in Sector 9',
-                        area: 'Sector 9, Chandigarh',
-                        status: 'Resolved',
-                        date: '2024-01-21',
-                        upvotes: 67,
-                      ),
-
-                      SizedBox(height: 2.h),
-
-                      _buildIssueCard(
-                        theme,
-                        category: 'Public Park',
-                        title: 'Park maintenance scheduled',
-                        area: 'Sector 7, Chandigarh',
-                        status: 'Pending',
-                        date: '2024-01-23',
-                        upvotes: 24,
-                      ),
-
-                      SizedBox(height: 2.h),
                     ],
                   ),
                 ),
@@ -313,6 +254,7 @@ class _PublicIssuesScreenState extends State<PublicIssuesScreen>
     );
   }
 
+  // ignore: unused_element
   Widget _buildIssueCard(
     ThemeData theme, {
     required String category,

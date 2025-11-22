@@ -6,11 +6,23 @@ class UserDataService {
   String? _username;
   String? _governmentIdType;
   String? _governmentIdNumber;
+  String? _email;
+  String? _phone;
+  String? _location;
+  String? _avatar;
+  int _complaintCount = 0;
+  List<Map<String, dynamic>> _complaints = [];
 
   // Getters
   String? get username => _username;
   String? get governmentIdType => _governmentIdType;
   String? get governmentIdNumber => _governmentIdNumber;
+  String? get email => _email;
+  String? get phone => _phone;
+  String? get location => _location;
+  String? get avatar => _avatar;
+  int get complaintCount => _complaintCount;
+  List<Map<String, dynamic>> get complaints => _complaints;
 
   bool get isLoggedIn => _username != null;
 
@@ -19,10 +31,22 @@ class UserDataService {
     required String username,
     required String governmentIdType,
     required String governmentIdNumber,
+    String? email,
+    String? phone,
+    String? location,
+    String? avatar,
+    int complaintCount = 0,
+    List<Map<String, dynamic>>? complaints,
   }) {
     _username = username;
     _governmentIdType = governmentIdType;
     _governmentIdNumber = governmentIdNumber;
+    if (email != null) _email = email;
+    if (phone != null) _phone = phone;
+    if (location != null) _location = location;
+    if (avatar != null) _avatar = avatar;
+    _complaintCount = complaintCount;
+    if (complaints != null) _complaints = complaints;
   }
 
   void clearUserData() {

@@ -158,7 +158,7 @@ class _HomeDashboardState extends State<HomeDashboard> {
                   userName: _isGuest
                       ? 'Guest User'
                       : (UserDataService().username ?? 'User'),
-                  location: _userData["location"] as String,
+                  location: UserDataService().location ?? '',
                   notificationCount:
                       _isGuest ? 0 : (_userData["notificationCount"] as int),
                   onNotificationTap: _isGuest ? null : _handleNotificationTap,

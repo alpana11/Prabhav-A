@@ -43,3 +43,35 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+
+
+
+
+=======================================================================
+
+
+
+# Secrets
+backend/.env
+backend/config/serviceAccountKey.json
+backend/config/firebase-key.json
+
+# Node modules
+backend/node_modules/
+
+# Flutter build
+frontend/build/
+build/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+==================================================================================
+
+
+

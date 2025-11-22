@@ -1,3 +1,4 @@
+// This file is deprecated and not used in the current project structure.
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 

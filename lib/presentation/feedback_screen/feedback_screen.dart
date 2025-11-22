@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../core/app_export.dart';
+import '../../services/feedback_service.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_bottom_bar.dart';
 import '../../widgets/custom_icon_widget.dart';
@@ -44,7 +45,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   bool _isDraftSaved = false;
 
   // Mock feedback history
-  final List<Map<String, dynamic>> _feedbackHistory = [
+  List<Map<String, dynamic>> _feedbackHistory = [
     {
       "id": "FB-001",
       "serviceTitle": "Water Supply Issue",
@@ -65,6 +66,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   void initState() {
     super.initState();
     _loadDraftFeedback();
+    _loadFeedbackHistory();
   }
 
   @override
@@ -477,6 +479,21 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     });
   }
 
+  Future<void> _loadFeedbackHistory() async {
+    try {
+      final feedbackService = FeedbackService();
+      final result = await feedbackService.getFeedbackHistory();
+
+      if (result['success']) {
+        setState(() {
+          _feedbackHistory = List<Map<String, dynamic>>.from(result['data'] ?? []);
+        });
+      }
+    } catch (e) {
+      // Silently handle error
+    }
+  }
+
   void _saveDraft() {
     // Simulate saving draft to local storage
     setState(() {
@@ -509,21 +526,41 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     });
 
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      final feedbackService = FeedbackService();
+      final result = await feedbackService.submitFeedback(
+        complaintId: _serviceData['id'],
+        rating: _overallRating,
+        feedbackText: _feedbackText,
+        aspectRatings: _aspectRatings,
+        isAnonymous: _isAnonymous,
+      );
 
-      // Show success dialog
       if (mounted) {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) => FeedbackSuccessDialog(
-            onClosePressed: () {
-              Navigator.of(context).pop();
-              _resetForm();
-            },
-          ),
-        );
+        if (result['success']) {
+          // Show success dialog
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) => FeedbackSuccessDialog(
+              onClosePressed: () {
+                Navigator.of(context).pop();
+                _resetForm();
+                Navigator.pushNamedAndRemoveUntil(context, '/profile-screen', (route) => false);
+              },
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['message'] ?? 'Failed to submit feedback'),
+              behavior: SnackBarBehavior.floating,
+              action: SnackBarAction(
+                label: 'Retry',
+                onPressed: _submitFeedback,
+              ),
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -662,7 +699,7 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             children: [
               Expanded(
                 child: Text(
-                  feedback['serviceTitle'],
+                  feedback['serviceTitle'] ?? 'Service',
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -671,14 +708,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.5.h),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(feedback['status'])
+                  color: _getStatusColor(feedback['status'] ?? 'Reviewed')
                       .withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  feedback['status'],
+                  feedback['status'] ?? 'Reviewed',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: _getStatusColor(feedback['status']),
+                    color: _getStatusColor(feedback['status'] ?? 'Reviewed'),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -689,14 +726,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           Row(
             children: [
               StarRatingWidget(
-                rating: (feedback['rating'] as num).toDouble(),
+                rating: (feedback['rating'] as num?)?.toDouble() ?? 0.0,
                 onRatingChanged: (_) {},
                 size: 16,
                 allowHalfRating: true,
               ),
               SizedBox(width: 2.w),
               Text(
-                feedback['rating'].toString(),
+                (feedback['rating'] ?? 0).toString(),
                 style: theme.textTheme.bodySmall?.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
@@ -705,10 +742,31 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           ),
           SizedBox(height: 1.h),
           Text(
-            'Submitted on ${feedback['submittedDate']}',
+            feedback['message'] ?? feedback['feedbackText'] ?? 'No message',
             style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(height: 1.h),
+          Row(
+            children: [
+              Text(
+                'By: ${feedback['userName'] ?? 'User'}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              SizedBox(width: 2.w),
+              Text(
+                'on ${feedback['submittedDate'] ?? feedback['submittedOn'] ?? 'Unknown date'}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+            ],
           ),
         ],
       ),

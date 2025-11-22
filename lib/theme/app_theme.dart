@@ -1,3 +1,4 @@
+// This file has been removed as part of the project refactor.
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

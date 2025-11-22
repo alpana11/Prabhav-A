@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sizer/sizer.dart';
 
@@ -8,8 +7,8 @@ import '../../widgets/custom_icon_widget.dart';
 import '../../widgets/custom_bottom_bar.dart';
 import './widgets/complaint_category_card.dart';
 import './widgets/complaint_details_form.dart';
-import './widgets/location_selection_section.dart';
 import './widgets/media_upload_section.dart';
+import '../../services/complaint_service.dart';
 import './widgets/step_progress_indicator.dart';
 
 class RegisterComplaintScreen extends StatefulWidget {
@@ -27,6 +26,7 @@ class _RegisterComplaintScreenState extends State<RegisterComplaintScreen> {
   // Form Controllers
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
 
   // State Variables
   int _currentStep = 0;
@@ -34,7 +34,6 @@ class _RegisterComplaintScreenState extends State<RegisterComplaintScreen> {
   String _selectedSeverity = 'Medium';
   bool _isAnonymous = false;
   List<XFile> _selectedMedia = [];
-  LatLng? _selectedLocation;
   String _selectedAddress = '';
   bool _isSubmitting = false;
 
@@ -86,6 +85,7 @@ class _RegisterComplaintScreenState extends State<RegisterComplaintScreen> {
     _pageController.dispose();
     _titleController.dispose();
     _descriptionController.dispose();
+    _addressController.dispose();
     super.dispose();
   }
 
@@ -94,13 +94,13 @@ class _RegisterComplaintScreenState extends State<RegisterComplaintScreen> {
       case 0:
         return _selectedCategory.isNotEmpty;
       case 1:
+        // Allow any non-empty title and description (no artificial length limit)
         return _titleController.text.trim().isNotEmpty &&
-            _descriptionController.text.trim().isNotEmpty &&
-            _descriptionController.text.trim().length >= 20;
+            _descriptionController.text.trim().isNotEmpty;
       case 2:
         return true; // Media is optional
       case 3:
-        return _selectedLocation != null;
+        return _selectedAddress.trim().isNotEmpty;
       default:
         return false;
     }
@@ -132,25 +132,37 @@ class _RegisterComplaintScreenState extends State<RegisterComplaintScreen> {
     setState(() => _isSubmitting = true);
 
     try {
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      final complaintService = ComplaintService();
+      final result = await complaintService.submitComplaint(
+        category: _selectedCategory,
+        title: _titleController.text.trim(),
+        description: _descriptionController.text.trim(),
+        severity: _selectedSeverity,
+        anonymous: _isAnonymous,
+        media: _selectedMedia,
+        address: _selectedAddress.isNotEmpty ? _selectedAddress : null,
+      );
 
-      // Generate mock complaint ID
-      final complaintId =
-          'CMP${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}';
-
-      // Show success dialog
-      if (mounted) {
-        _showSuccessDialog(complaintId);
+      if (result['success'] == true) {
+        String complaintId = 'CMP${DateTime.now().millisecondsSinceEpoch}';
+        try {
+          final data = result['data'];
+          if (data is Map && data['complaint'] != null) {
+            complaintId = data['complaint']['complaintId'] ?? complaintId;
+          } else if (data is Map && data['complaintId'] != null) {
+            complaintId = data['complaintId'];
+          }
+        } catch (_) {}
+        if (mounted) {
+          _showSuccessDialog(complaintId);
+        }
+      } else {
+        if (mounted) _showErrorSnackBar(result['message'] ?? 'Failed to submit complaint');
       }
     } catch (e) {
-      if (mounted) {
-        _showErrorSnackBar('Failed to submit complaint. Please try again.');
-      }
+      if (mounted) _showErrorSnackBar('Failed to submit complaint. Please try again.');
     } finally {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-      }
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
@@ -221,11 +233,11 @@ class _RegisterComplaintScreenState extends State<RegisterComplaintScreen> {
               Navigator.pop(context);
               Navigator.pushNamedAndRemoveUntil(
                 context,
-                '/home-dashboard',
+                '/profile-screen',
                 (route) => false,
               );
             },
-            child: const Text('Go to Home'),
+            child: const Text('Go to Profile'),
           ),
         ],
       ),
@@ -311,16 +323,73 @@ class _RegisterComplaintScreenState extends State<RegisterComplaintScreen> {
                   },
                 ),
 
-                // Step 4: Location Selection
-                LocationSelectionSection(
-                  selectedLocation: _selectedLocation,
-                  selectedAddress: _selectedAddress,
-                  onLocationChanged: (location, address) {
-                    setState(() {
-                      _selectedLocation = location;
-                      _selectedAddress = address;
-                    });
-                  },
+                // Step 4: Manual Address Input (map and GPS removed)
+                SingleChildScrollView(
+                  padding: EdgeInsets.all(4.w),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Enter Address',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(height: 1.h),
+                      Text(
+                        'Please enter the address where the issue is occurring',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                      SizedBox(height: 3.h),
+                      TextField(
+                        controller: _addressController,
+                        decoration: InputDecoration(
+                          labelText: 'Address',
+                          hintText: 'Enter full address',
+                          prefixIcon: Icon(
+                            Icons.location_on,
+                            color: colorScheme.onSurface.withValues(alpha: 0.6),
+                          ),
+                        ),
+                        maxLines: 3,
+                        onChanged: (value) {
+                          setState(() => _selectedAddress = value);
+                        },
+                      ),
+                      SizedBox(height: 3.h),
+                      Container(
+                        padding: EdgeInsets.all(3.w),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surface,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: colorScheme.outline.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            CustomIconWidget(
+                              iconName: 'info',
+                              color: colorScheme.onSurface.withValues(alpha: 0.6),
+                              size: 20,
+                            ),
+                            SizedBox(width: 2.w),
+                            Expanded(
+                              child: Text(
+                                'Enter the address manually. GPS, live location, and map picker have been removed as requested.',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

@@ -78,28 +78,6 @@ class _DIDIllustrationWidgetState extends State<DIDIllustrationWidget>
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Outer glow effect
-          if (widget.animate)
-            AnimatedBuilder(
-              animation: _glowAnimation,
-              builder: (context, child) {
-                return Container(
-                  width: size * 1.4,
-                  height: size * 1.4,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        AppTheme.lightTheme.colorScheme.primary
-                            .withValues(alpha: _glowAnimation.value * 0.3),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-
           // Main illustration container
           AnimatedBuilder(
             animation: widget.animate

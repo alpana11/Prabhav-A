@@ -8,6 +8,7 @@ import '../presentation/register_complaint_screen/register_complaint_screen.dart
 import '../presentation/track_complaints_screen/track_complaints_screen.dart';
 import '../presentation/public_issues_screen/public_issues_screen.dart';
 import '../presentation/issue_details_screen/issue_details_screen.dart';
+import '../presentation/set_username_password_screen.dart';
 
 class AppRoutes {
   // TODO: Add your routes here
@@ -31,6 +32,7 @@ class AppRoutes {
     loginAndSignup: (context) => const LoginAndSignupScreen(),
     profile: (context) => const ProfileScreen(),
     registerComplaint: (context) => const RegisterComplaintScreen(),
+    '/set-username-password': (context) => const SetUsernamePasswordScreen(),
     activityHistory: (context) =>
         const HomeDashboard(), // Temporary - redirect to home
     trackComplaints: (context) => const TrackComplaintsScreen(),

@@ -10,74 +10,8 @@ class NearbyIssuesWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final List<Map<String, dynamic>> nearbyIssues = [
-      {
-        "id": 1,
-        "title": "Broken Street Light",
-        "description":
-            "Street light not working since 3 days, causing safety concerns",
-        "location": "MG Road Junction",
-        "distance": 0.2,
-        "category": "electricity",
-        "status": "submitted",
-        "priority": "high",
-        "reportedBy": "Rajesh Kumar",
-        "timestamp": DateTime.now().subtract(const Duration(hours: 6)),
-        "upvotes": 12,
-        "image": "https://images.unsplash.com/photo-1709864126436-d976ce9417ef",
-        "semanticLabel":
-            "Broken street light pole on a city road at dusk with no illumination",
-        "budget": "₹15,000",
-        "startDate": "2024-01-16",
-        "endDate": "2024-01-25",
-        "managedBy": "Electricity Department",
-        "progress": "60%",
-      },
-      {
-        "id": 2,
-        "title": "Pothole on Main Road",
-        "description":
-            "Large pothole causing traffic issues and vehicle damage",
-        "location": "Gandhi Nagar Main Road",
-        "distance": 0.5,
-        "category": "road",
-        "status": "in_progress",
-        "priority": "medium",
-        "reportedBy": "Priya Sharma",
-        "timestamp": DateTime.now().subtract(const Duration(days: 1)),
-        "upvotes": 8,
-        "image": "https://images.unsplash.com/photo-1543781934-d74ec7a6c0cd",
-        "semanticLabel":
-            "Large pothole filled with water on an asphalt road surface",
-        "budget": "₹25,000",
-        "startDate": "2024-01-12",
-        "endDate": "2024-01-20",
-        "managedBy": "Public Works Department",
-        "progress": "40%",
-      },
-      {
-        "id": 3,
-        "title": "Water Leakage",
-        "description":
-            "Continuous water leakage from main pipeline wasting water",
-        "location": "Sector 15 Market",
-        "distance": 0.8,
-        "category": "water",
-        "status": "submitted",
-        "priority": "high",
-        "reportedBy": "Amit Singh",
-        "timestamp": DateTime.now().subtract(const Duration(hours: 12)),
-        "upvotes": 15,
-        "image": "https://images.unsplash.com/photo-1559070845-4b4ffdb69d86",
-        "semanticLabel":
-            "Water leaking from underground pipe creating puddle on concrete pavement",
-        "budget": "₹30,000",
-        "startDate": "2024-01-18",
-        "endDate": "2024-01-28",
-        "managedBy": "Water Department",
-        "progress": "20%",
-      },
-    ];
+    // No hard-coded nearby issues. Load nearby issues from the backend API.
+    final List<Map<String, dynamic>> nearbyIssues = [];
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 4.w),

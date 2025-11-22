@@ -194,6 +194,8 @@ class _SetUsernamePasswordScreenState extends State<SetUsernamePasswordScreen>
     }
   }
 
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -578,4 +580,4 @@ class _SetUsernamePasswordScreenState extends State<SetUsernamePasswordScreen>
       ),
     );
   }
-}
+} 
