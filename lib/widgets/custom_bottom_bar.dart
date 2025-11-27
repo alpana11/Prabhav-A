@@ -74,7 +74,7 @@ class CustomBottomBar extends StatelessWidget {
         color: backgroundColor ?? colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.1),
+            color: colorScheme.shadow.withOpacity(0.1),
             blurRadius: elevation,
             offset: const Offset(0, -2),
           ),
@@ -93,7 +93,7 @@ class CustomBottomBar extends StatelessWidget {
         backgroundColor: backgroundColor ?? colorScheme.surface,
         selectedItemColor: selectedItemColor ?? colorScheme.primary,
         unselectedItemColor:
-            unselectedItemColor ?? colorScheme.onSurface.withValues(alpha: 0.6),
+            unselectedItemColor ?? colorScheme.onSurface.withOpacity(0.6),
         elevation: 0, // We handle elevation with container shadow
         selectedLabelStyle: GoogleFonts.inter(
           fontSize: 12,

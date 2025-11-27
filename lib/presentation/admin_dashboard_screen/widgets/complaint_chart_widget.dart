@@ -19,7 +19,7 @@ class ComplaintChartWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.shadow.withValues(alpha: 0.1),
+            color: theme.colorScheme.shadow.withOpacity(0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -42,7 +42,7 @@ class ComplaintChartWidget extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                    color: theme.colorScheme.primary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -124,11 +124,11 @@ topTitles: AxisTitles(
                       show: true,
                       border: Border(
                         bottom: BorderSide(
-                          color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                          color: theme.colorScheme.outline.withOpacity(0.2),
                           width: 1,
                         ),
                         left: BorderSide(
-                          color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                          color: theme.colorScheme.outline.withOpacity(0.2),
                           width: 1,
                         ),
                       ),
@@ -140,7 +140,7 @@ topTitles: AxisTitles(
                       horizontalInterval: 10,
                       getDrawingHorizontalLine: (value) {
                         return FlLine(
-                          color: theme.colorScheme.outline.withValues(alpha: 0.1),
+                          color: theme.colorScheme.outline.withOpacity(0.1),
                           strokeWidth: 1,
                         );
                       },

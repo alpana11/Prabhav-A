@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
 
@@ -58,7 +56,7 @@ class AiSummaryWidget extends StatelessWidget {
                         'Weekly Summary • Oct 16, 2025',
                         style: theme.textTheme.labelSmall?.copyWith(
                           color: theme.colorScheme.onSurface
-                              .withValues(alpha: 0.6),
+                              .withOpacity(0.8),
                         ),
                       ),
                     ],

@@ -1,12 +1,11 @@
+// lib/presentation/feedback_screen/feedback_screen.dart
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:sizer/sizer.dart';
 
 import '../../core/app_export.dart';
 import '../../services/feedback_service.dart';
 import '../../widgets/custom_app_bar.dart';
 import '../../widgets/custom_bottom_bar.dart';
-import '../../widgets/custom_icon_widget.dart';
 import './widgets/feedback_success_dialog.dart';
 import './widgets/feedback_text_area_widget.dart';
 import './widgets/photo_upload_widget.dart';
@@ -14,26 +13,16 @@ import './widgets/service_aspect_rating_widget.dart';
 import './widgets/star_rating_widget.dart';
 
 class FeedbackScreen extends StatefulWidget {
-  const FeedbackScreen({super.key});
+  // Make complaint optional so route creation doesn't require it
+  final Map<String, dynamic>? complaint;
+  const FeedbackScreen({Key? key, this.complaint}) : super(key: key);
 
   @override
   State<FeedbackScreen> createState() => _FeedbackScreenState();
 }
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
-  // Mock data for the complaint/service being reviewed
-  final Map<String, dynamic> _serviceData = {
-    "id": "COMP-2024-001",
-    "title": "Road Repair Request",
-    "category": "Infrastructure",
-    "categoryIcon": "construction",
-    "resolutionDate": "2024-10-14",
-    "status": "Resolved",
-    "description":
-        "Pothole repair on MG Road near City Mall completed successfully",
-    "location": "MG Road, Sector 15, Gurgaon",
-    "resolvedBy": "Municipal Corporation",
-  };
+  late Map<String, dynamic> _serviceData;
 
   // Form state
   double _overallRating = 0.0;
@@ -44,23 +33,32 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
   bool _isSubmitting = false;
   bool _isDraftSaved = false;
 
-  // Mock feedback history
-  List<Map<String, dynamic>> _feedbackHistory = [
-    {
-      "id": "FB-001",
-      "serviceTitle": "Water Supply Issue",
-      "rating": 4.5,
-      "submittedDate": "2024-10-10",
-      "status": "Reviewed",
-    },
-    {
-      "id": "FB-002",
-      "serviceTitle": "Street Light Repair",
-      "rating": 3.0,
-      "submittedDate": "2024-10-05",
-      "status": "Under Review",
-    },
-  ];
+  // feedback history displayed in UI
+  List<Map<String, dynamic>> _feedbackHistory = [];
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // priority: widget.complaint -> route args -> fallback mock
+    final args = ModalRoute.of(context)?.settings.arguments;
+    if (widget.complaint != null) {
+      _serviceData = widget.complaint!;
+    } else if (args is Map<String, dynamic>) {
+      _serviceData = args;
+    } else {
+      _serviceData = {
+        "id": "COMP-UNKNOWN",
+        "title": "Unknown Service",
+        "category": "General",
+        "categoryIcon": "feedback",
+        "resolutionDate": "",
+        "status": "Unknown",
+        "description": "",
+        "location": "",
+        "resolvedBy": "",
+      };
+    }
+  }
 
   @override
   void initState() {
@@ -98,26 +96,26 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   Widget _buildBody(ThemeData theme) {
     return SingleChildScrollView(
-      padding: EdgeInsets.all(4.w),
+      padding: EdgeInsets.all(16), // replaced 4.w to avoid dependency on sizer in this snippet
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildServiceHeader(theme),
-          SizedBox(height: 3.h),
+          const SizedBox(height: 16),
           _buildOverallRating(theme),
-          SizedBox(height: 3.h),
+          const SizedBox(height: 16),
           _buildFeedbackTextArea(theme),
-          SizedBox(height: 3.h),
+          const SizedBox(height: 16),
           _buildPhotoUpload(theme),
-          SizedBox(height: 3.h),
+          const SizedBox(height: 16),
           _buildServiceAspectRating(theme),
-          SizedBox(height: 3.h),
+          const SizedBox(height: 16),
           _buildAnonymousToggle(theme),
-          SizedBox(height: 4.h),
+          const SizedBox(height: 24),
           _buildSubmitButton(theme),
-          SizedBox(height: 2.h),
+          const SizedBox(height: 12),
           _buildDraftInfo(theme),
-          SizedBox(height: 10.h), // Extra space for bottom navigation
+          const SizedBox(height: 80), // reserve space for bottom bar
         ],
       ),
     );
@@ -125,13 +123,11 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   Widget _buildServiceHeader(ThemeData theme) {
     return Container(
-      padding: EdgeInsets.all(4.w),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: theme.colorScheme.outline.withOpacity(0.12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,69 +135,57 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(2.w),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                  color: theme.colorScheme.primary.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: CustomIconWidget(
-                  iconName: _serviceData['categoryIcon'],
+                  iconName: _serviceData['categoryIcon'] ?? 'feedback',
                   color: theme.colorScheme.primary,
                   size: 24,
                 ),
               ),
-              SizedBox(width: 3.w),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _serviceData['title'],
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      _serviceData['title'] ?? 'Service',
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
                     ),
-                    SizedBox(height: 0.5.h),
+                    const SizedBox(height: 6),
                     Text(
-                      _serviceData['category'],
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color:
-                            theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                      ),
+                      _serviceData['category'] ?? '',
+                      style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.green.withValues(alpha: 0.1),
+                  color: Colors.green.withOpacity(0.08),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  _serviceData['status'],
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.green,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  _serviceData['status'] ?? '',
+                  style: theme.textTheme.bodySmall?.copyWith(color: Colors.green, fontWeight: FontWeight.w600),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 2.h),
+          const SizedBox(height: 12),
           Row(
             children: [
-              CustomIconWidget(
-                iconName: 'event',
-                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                size: 16,
-              ),
-              SizedBox(width: 2.w),
+              CustomIconWidget(iconName: 'event', color: theme.colorScheme.onSurface.withOpacity(0.6), size: 16),
+              const SizedBox(width: 8),
               Text(
-                'Resolved on ${_serviceData['resolutionDate']}',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
+                _serviceData['resolutionDate'] != null && ( _serviceData['resolutionDate'] ?? '' ) != ''
+                    ? 'Resolved on ${_serviceData['resolutionDate']}'
+                    : '',
+                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
               ),
             ],
           ),
@@ -216,39 +200,20 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       children: [
         Row(
           children: [
-            CustomIconWidget(
-              iconName: 'star',
-              color: theme.colorScheme.tertiary,
-              size: 20,
-            ),
-            SizedBox(width: 2.w),
-            Text(
-              'Overall Rating',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            Text(
-              ' *',
-              style: theme.textTheme.titleMedium?.copyWith(
-                color: theme.colorScheme.error,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            CustomIconWidget(iconName: 'star', color: theme.colorScheme.tertiary, size: 20),
+            const SizedBox(width: 8),
+            Text('Overall Rating', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+            Text(' *', style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.error, fontWeight: FontWeight.w600)),
           ],
         ),
-        SizedBox(height: 2.h),
+        const SizedBox(height: 8),
         Container(
           width: double.infinity,
-          padding: EdgeInsets.all(4.w),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: _overallRating > 0
-                  ? theme.colorScheme.primary.withValues(alpha: 0.3)
-                  : theme.colorScheme.outline.withValues(alpha: 0.2),
-            ),
+            border: Border.all(color: _overallRating > 0 ? theme.colorScheme.primary.withOpacity(0.3) : theme.colorScheme.outline.withOpacity(0.2)),
           ),
           child: Column(
             children: [
@@ -263,30 +228,14 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                 size: 40,
                 allowHalfRating: true,
               ),
-              SizedBox(height: 2.h),
+              const SizedBox(height: 8),
               if (_overallRating > 0) ...[
-                Text(
-                  _getRatingDescription(_overallRating),
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: _getRatingColor(_overallRating),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 0.5.h),
-                Text(
-                  'Thank you for rating our service!',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
+                Text(_getRatingDescription(_overallRating), style: theme.textTheme.titleSmall?.copyWith(color: _getRatingColor(_overallRating), fontWeight: FontWeight.w600)),
+                const SizedBox(height: 6),
+                Text('Thank you for rating our service!', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6))),
               ] else ...[
-                Text(
-                  'Tap stars to rate your experience',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
-              ],
+                Text('Tap stars to rate your experience', style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6))),
+              ]
             ],
           ),
         ),
@@ -341,50 +290,23 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   Widget _buildAnonymousToggle(ThemeData theme) {
     return Container(
-      padding: EdgeInsets.all(4.w),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.2),
-        ),
-      ),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: theme.colorScheme.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: theme.colorScheme.outline.withOpacity(0.12))),
       child: Row(
         children: [
-          CustomIconWidget(
-            iconName: 'visibility_off',
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-            size: 20,
-          ),
-          SizedBox(width: 3.w),
+          CustomIconWidget(iconName: 'visibility_off', color: theme.colorScheme.onSurface.withOpacity(0.6), size: 20),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Submit Anonymous Feedback',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                SizedBox(height: 0.5.h),
-                Text(
-                  'Your identity will not be shared with authorities',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  ),
-                ),
+                Text('Submit Anonymous Feedback', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                const SizedBox(height: 6),
+                Text('Your identity will not be shared with authorities', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6))),
               ],
             ),
           ),
-          Switch(
-            value: _isAnonymous,
-            onChanged: (value) {
-              setState(() {
-                _isAnonymous = value;
-              });
-            },
-          ),
+          Switch(value: _isAnonymous, onChanged: (value) => setState(() => _isAnonymous = value)),
         ],
       ),
     );
@@ -398,189 +320,105 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
       child: ElevatedButton(
         onPressed: isEnabled ? _submitFeedback : null,
         style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 2.h),
-          backgroundColor: isEnabled
-              ? theme.colorScheme.primary
-              : theme.colorScheme.onSurface.withValues(alpha: 0.12),
-          foregroundColor: isEnabled
-              ? theme.colorScheme.onPrimary
-              : theme.colorScheme.onSurface.withValues(alpha: 0.38),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          backgroundColor: isEnabled ? theme.colorScheme.primary : theme.colorScheme.onSurface.withOpacity(0.12),
+          foregroundColor: isEnabled ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface.withOpacity(0.38),
         ),
         child: _isSubmitting
-            ? Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: theme.colorScheme.onPrimary,
-                    ),
-                  ),
-                  SizedBox(width: 3.w),
-                  Text('Submitting...'),
-                ],
-              )
-            : Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CustomIconWidget(
-                    iconName: 'send',
-                    color: isEnabled
-                        ? theme.colorScheme.onPrimary
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.38),
-                    size: 20,
-                  ),
-                  SizedBox(width: 2.w),
-                  Text('Submit Feedback'),
-                ],
-              ),
+            ? Row(mainAxisAlignment: MainAxisAlignment.center, children: [const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)), const SizedBox(width: 12), const Text('Submitting...')])
+            : Row(mainAxisAlignment: MainAxisAlignment.center, children: [CustomIconWidget(iconName: 'send', color: isEnabled ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface.withOpacity(0.38), size: 20), const SizedBox(width: 8), const Text('Submit Feedback')]),
       ),
     );
   }
 
   Widget _buildDraftInfo(ThemeData theme) {
     if (!_isDraftSaved) return const SizedBox.shrink();
-
     return Container(
-      padding: EdgeInsets.all(3.w),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primary.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: theme.colorScheme.primary.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Row(
-        children: [
-          CustomIconWidget(
-            iconName: 'save',
-            color: theme.colorScheme.primary,
-            size: 16,
-          ),
-          SizedBox(width: 2.w),
-          Text(
-            'Draft saved automatically',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.primary,
-            ),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(color: theme.colorScheme.primary.withOpacity(0.05), borderRadius: BorderRadius.circular(8), border: Border.all(color: theme.colorScheme.primary.withOpacity(0.12))),
+      child: Row(children: [CustomIconWidget(iconName: 'save', color: theme.colorScheme.primary, size: 16), const SizedBox(width: 8), Text('Draft saved automatically', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.primary))]),
     );
   }
 
   void _loadDraftFeedback() {
-    // Simulate loading draft from local storage
-    // In real app, this would load from SharedPreferences or local database
-    setState(() {
-      _isDraftSaved = false;
-    });
+    // TODO: load from local storage if you have it
+    setState(() => _isDraftSaved = false);
   }
 
   Future<void> _loadFeedbackHistory() async {
     try {
       final feedbackService = FeedbackService();
       final result = await feedbackService.getFeedbackHistory();
-
-      if (result['success']) {
+      if (result['success'] == true) {
+        // ensure structure matches what UI expects
         setState(() {
           _feedbackHistory = List<Map<String, dynamic>>.from(result['data'] ?? []);
         });
       }
     } catch (e) {
-      // Silently handle error
+      // silent
     }
   }
 
   void _saveDraft() {
-    // Simulate saving draft to local storage
-    setState(() {
-      _isDraftSaved = true;
-    });
-
-    // Hide draft indicator after 2 seconds
+    setState(() => _isDraftSaved = true);
     Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        setState(() {
-          _isDraftSaved = false;
-        });
-      }
+      if (mounted) setState(() => _isDraftSaved = false);
     });
   }
 
   Future<void> _submitFeedback() async {
     if (_overallRating == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please provide an overall rating'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please provide an overall rating'), behavior: SnackBarBehavior.floating));
       return;
     }
 
-    setState(() {
-      _isSubmitting = true;
-    });
+    setState(() => _isSubmitting = true);
 
     try {
       final feedbackService = FeedbackService();
-      final result = await feedbackService.submitFeedback(
-        complaintId: _serviceData['id'],
+      final res = await feedbackService.submitFeedback(
+        complaintId: _serviceData['id']?.toString() ?? '',
         rating: _overallRating,
         feedbackText: _feedbackText,
         aspectRatings: _aspectRatings,
         isAnonymous: _isAnonymous,
       );
 
-      if (mounted) {
-        if (result['success']) {
-          // Show success dialog
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (context) => FeedbackSuccessDialog(
-              onClosePressed: () {
-                Navigator.of(context).pop();
-                _resetForm();
-                Navigator.pushNamedAndRemoveUntil(context, '/profile-screen', (route) => false);
-              },
-            ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(result['message'] ?? 'Failed to submit feedback'),
-              behavior: SnackBarBehavior.floating,
-              action: SnackBarAction(
-                label: 'Retry',
-                onPressed: _submitFeedback,
-              ),
-            ),
-          );
-        }
+      if (!mounted) return;
+
+      if (res['success'] == true) {
+        // Add new feedback to local list so it appears immediately
+        final item = {
+          'id': res['data']?['_id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+          'serviceTitle': _serviceData['title'] ?? 'Service',
+          'rating': _overallRating,
+          'submittedDate': DateTime.now().toIso8601String(),
+          'status': 'Submitted',
+          'message': _feedbackText,
+          'userName': _isAnonymous ? 'Anonymous' : (res['data']?['userName'] ?? 'You'),
+        };
+        setState(() => _feedbackHistory.insert(0, item));
+
+        // Show dialog & navigate back to profile when closed
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => FeedbackSuccessDialog(onClosePressed: () {
+            Navigator.of(context).pop();
+            _resetForm();
+            // go to profile screen (adjust route name if different)
+            Navigator.pushNamedAndRemoveUntil(context, '/profile-screen', (route) => false);
+          }),
+        );
+      } else {
+        final message = res['message'] ?? 'Failed to submit feedback';
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), behavior: SnackBarBehavior.floating));
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to submit feedback. Please try again.'),
-            behavior: SnackBarBehavior.floating,
-            action: SnackBarAction(
-              label: 'Retry',
-              onPressed: _submitFeedback,
-            ),
-          ),
-        );
-      }
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Failed to submit feedback. Please try again.'), behavior: SnackBarBehavior.floating));
     } finally {
-      if (mounted) {
-        setState(() {
-          _isSubmitting = false;
-        });
-      }
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
@@ -599,54 +437,29 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => _buildFeedbackHistorySheet(),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      builder: (_) => _buildFeedbackHistorySheet(),
     );
   }
 
   Widget _buildFeedbackHistorySheet() {
     final theme = Theme.of(context);
-
     return Container(
-      height: 70.h,
-      padding: EdgeInsets.all(4.w),
+      height: MediaQuery.of(context).size.height * 0.75,
+      padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          // Handle
-          Container(
-            width: 12.w,
-            height: 0.5.h,
-            decoration: BoxDecoration(
-              color: theme.colorScheme.outline.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(2),
-            ),
-          ),
-
-          SizedBox(height: 3.h),
-
-          Text(
-            'Feedback History',
-            style: theme.textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-
-          SizedBox(height: 3.h),
-
+          Container(width: 48, height: 6, decoration: BoxDecoration(color: theme.colorScheme.outline.withOpacity(0.3), borderRadius: BorderRadius.circular(4))),
+          const SizedBox(height: 16),
+          Text('Feedback History', style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 16),
           Expanded(
-            child: _feedbackHistory.isEmpty
-                ? _buildEmptyHistory(theme)
-                : ListView.separated(
-                    itemCount: _feedbackHistory.length,
-                    separatorBuilder: (context, index) => SizedBox(height: 2.h),
-                    itemBuilder: (context, index) {
-                      final feedback = _feedbackHistory[index];
-                      return _buildFeedbackHistoryItem(feedback, theme);
-                    },
-                  ),
-          ),
+            child: _feedbackHistory.isEmpty ? _buildEmptyHistory(theme) : ListView.separated(
+              itemCount: _feedbackHistory.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (_, index) => _buildFeedbackHistoryItem(_feedbackHistory[index], theme),
+            ),
+          )
         ],
       ),
     );
@@ -654,122 +467,40 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   Widget _buildEmptyHistory(ThemeData theme) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CustomIconWidget(
-            iconName: 'feedback',
-            color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
-            size: 64,
-          ),
-          SizedBox(height: 2.h),
-          Text(
-            'No Feedback History',
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
-          ),
-          SizedBox(height: 1.h),
-          Text(
-            'Your submitted feedback will appear here',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-            ),
-          ),
-        ],
-      ),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        CustomIconWidget(iconName: 'feedback', color: theme.colorScheme.onSurface.withOpacity(0.3), size: 64),
+        const SizedBox(height: 12),
+        Text('No Feedback History', style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6))),
+        const SizedBox(height: 6),
+        Text('Your submitted feedback will appear here', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.4))),
+      ]),
     );
   }
 
-  Widget _buildFeedbackHistoryItem(
-      Map<String, dynamic> feedback, ThemeData theme) {
+  Widget _buildFeedbackHistoryItem(Map<String, dynamic> feedback, ThemeData theme) {
     return Container(
-      padding: EdgeInsets.all(4.w),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  feedback['serviceTitle'] ?? 'Service',
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.5.h),
-                decoration: BoxDecoration(
-                  color: _getStatusColor(feedback['status'] ?? 'Reviewed')
-                      .withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  feedback['status'] ?? 'Reviewed',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: _getStatusColor(feedback['status'] ?? 'Reviewed'),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 1.h),
-          Row(
-            children: [
-              StarRatingWidget(
-                rating: (feedback['rating'] as num?)?.toDouble() ?? 0.0,
-                onRatingChanged: (_) {},
-                size: 16,
-                allowHalfRating: true,
-              ),
-              SizedBox(width: 2.w),
-              Text(
-                (feedback['rating'] ?? 0).toString(),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 1.h),
-          Text(
-            feedback['message'] ?? feedback['feedbackText'] ?? 'No message',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: 1.h),
-          Row(
-            children: [
-              Text(
-                'By: ${feedback['userName'] ?? 'User'}',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(width: 2.w),
-              Text(
-                'on ${feedback['submittedDate'] ?? feedback['submittedOn'] ?? 'Unknown date'}',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(color: theme.colorScheme.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: theme.colorScheme.outline.withOpacity(0.12))),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Expanded(child: Text(feedback['serviceTitle'] ?? 'Service', style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600))),
+          Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4), decoration: BoxDecoration(color: _getStatusColor((feedback['status'] ?? 'Reviewed')).withOpacity(0.1), borderRadius: BorderRadius.circular(12)), child: Text(feedback['status'] ?? 'Reviewed', style: theme.textTheme.bodySmall?.copyWith(color: _getStatusColor((feedback['status'] ?? 'Reviewed')), fontWeight: FontWeight.w500)))
+        ]),
+        const SizedBox(height: 8),
+        Row(children: [
+          StarRatingWidget(rating: (feedback['rating'] as num?)?.toDouble() ?? 0.0, onRatingChanged: (_) {}, size: 16, allowHalfRating: true),
+          const SizedBox(width: 8),
+          Text((feedback['rating'] ?? 0).toString(), style: theme.textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w500))
+        ]),
+        const SizedBox(height: 8),
+        Text(feedback['message'] ?? 'No message', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.7)), maxLines: 2, overflow: TextOverflow.ellipsis),
+        const SizedBox(height: 8),
+        Row(children: [
+          Text('By: ${feedback['userName'] ?? 'User'}', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6), fontWeight: FontWeight.w500)),
+          const SizedBox(width: 12),
+          Text('on ${feedback['submittedDate'] ?? feedback['submittedOn'] ?? 'Unknown date'}', style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)))
+        ])
+      ]),
     );
   }
 

@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 class ProfileService {
-  static const String _baseUrl = 'http://10.13.191.92:4000/api';
+  static const String _baseUrl = 'http://192.168.29.50:5000/api';
 
   Future<Map<String, dynamic>> uploadProfilePicture({
     required String userId,

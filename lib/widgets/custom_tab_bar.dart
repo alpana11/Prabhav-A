@@ -51,7 +51,7 @@ class CustomTabBar extends StatelessWidget {
         color: backgroundColor ?? colorScheme.surface,
         border: Border(
           bottom: BorderSide(
-            color: colorScheme.outline.withValues(alpha: 0.2),
+            color: colorScheme.outline.withOpacity(0.2),
             width: 1,
           ),
         ),
@@ -62,7 +62,7 @@ class CustomTabBar extends StatelessWidget {
         isScrollable: isScrollable,
         labelColor: labelColor ?? colorScheme.primary,
         unselectedLabelColor: unselectedLabelColor ??
-            colorScheme.onSurface.withValues(alpha: 0.6),
+            colorScheme.onSurface.withOpacity(0.6),
         indicatorColor: indicatorColor ?? colorScheme.primary,
         indicatorSize: indicatorSize,
         indicatorWeight: 2.0,

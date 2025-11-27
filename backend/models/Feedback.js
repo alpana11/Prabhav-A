@@ -1,16 +1,35 @@
 const mongoose = require('mongoose');
 
-const feedbackSchema = new mongoose.Schema(
-  {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    complaintId: { type: String },
-    rating: { type: Number, min: 0, max: 5 },
-    feedbackText: { type: String },
-    aspectRatings: { type: Object },
-    isAnonymous: { type: Boolean, default: false },
-    status: { type: String, default: 'Submitted' },
+const feedbackSchema = new mongoose.Schema({
+  complaintId: {
+    type: String,
+    required: true,
   },
-  { timestamps: { createdAt: 'submittedAt' } }
-);
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
+  rating: {
+    type: Number,
+    required: true
+  },
+  feedbackText: {
+    type: String,
+    default: ''
+  },
+  aspectRatings: {
+    type: Object,
+    default: {}
+  },
+  isAnonymous: {
+    type: Boolean,
+    default: false
+  },
+  submittedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
 
 module.exports = mongoose.model('Feedback', feedbackSchema);
