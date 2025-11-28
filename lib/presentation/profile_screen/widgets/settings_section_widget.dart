@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
+
 import '../../../core/app_export.dart';
 import '../../../services/theme_service.dart';
 import '../../../services/language_service.dart';
@@ -211,11 +212,14 @@ class _SettingsSectionWidgetState extends State<SettingsSectionWidget> {
                 onChanged: (value) async {
                   if (value) {
                     await languageService.setToHindi();
+                    
                   } else {
                     await languageService.setToEnglish();
+                    
                   }
                   widget.onSettingChanged(
                       "language", value ? "Hindi" : "English");
+                      setState(() {}); // update the UI label
                 },
               ),
               SizedBox(width: 2.w),
@@ -285,7 +289,10 @@ class _SettingsSectionWidgetState extends State<SettingsSectionWidget> {
               value: isDarkMode,
               onChanged: (value) async {
                 await themeService.toggleTheme(isDark: value);
+                
+
                 widget.onSettingChanged("theme", value ? "Dark" : "Light");
+                setState(() {}); // update text label
               },
             ),
           ],

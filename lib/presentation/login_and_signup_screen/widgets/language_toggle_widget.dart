@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/app_export.dart';
-
+import '../../../services/language_service.dart';
 
 class LanguageToggleWidget extends StatefulWidget {
   final Function(String) onLanguageChanged;
@@ -31,6 +32,8 @@ class _LanguageToggleWidgetState extends State<LanguageToggleWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final languageService = Provider.of<LanguageService>(context);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: _languages.map((lang) {
@@ -40,17 +43,27 @@ class _LanguageToggleWidgetState extends State<LanguageToggleWidget> {
           child: ChoiceChip(
             label: Text(lang),
             selected: isSelected,
-            onSelected: (selected) {
+            onSelected: (selected) async {
               if (selected && !isSelected) {
                 setState(() {
                   _selectedLanguage = lang;
                 });
+
+                // 🔥 APPLY LANGUAGE TO APP
+                if (lang == "Hindi") {
+                  await languageService.setToHindi();
+                } else {
+                  await languageService.setToEnglish();
+                }
+
                 widget.onLanguageChanged(lang);
               }
             },
             selectedColor: Theme.of(context).colorScheme.primary,
             labelStyle: TextStyle(
-              color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurface,
+              color: isSelected
+                  ? Colors.white
+                  : Theme.of(context).colorScheme.onSurface,
             ),
           ),
         );
@@ -58,4 +71,3 @@ class _LanguageToggleWidgetState extends State<LanguageToggleWidget> {
     );
   }
 }
-

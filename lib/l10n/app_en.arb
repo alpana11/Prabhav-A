@@ -1,0 +1,15 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "PRABHAV",
+
+  "hello": "Hello",
+  "welcome": "Welcome to the app",
+  "language": "Language",
+  "theme": "Theme",
+  "darkMode": "Dark Mode",
+  "lightMode": "Light Mode",
+  "profile": "Profile",
+  "settings": "Settings",
+  "logout": "Logout"
+}
